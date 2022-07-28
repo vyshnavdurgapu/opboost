@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class collision : MonoBehaviour
 {
+    [SerializeField]float delay = 1.5f;
     void OnCollisionEnter(Collision other) 
     {
         switch(other.gameObject.tag)
@@ -11,20 +12,37 @@ public class collision : MonoBehaviour
                 Debug.Log("this is friendly");
                 break;
             case "Finish":
-                Debug.Log(" cool boi ");
-                break;
-            case "fuel":
-                Debug.Log("oooo charge and feelin good");
-                break;  
+                landedsequence();
+                break; 
             default:
-                reloadlevel();
+                startcrashedsequence();
                 break;  
 
         }
+    }
+    void landedsequence()
+    {
+        GetComponent<movement>().enabled = false;
+        Invoke("loadnextlevel",delay);
+    }
+    void startcrashedsequence()
+    {
+        GetComponent<movement>().enabled = false;
+        Invoke("reloadlevel",delay);
     }
     void reloadlevel()
     {
         int currentsceneindex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentsceneindex);
+    }
+    void loadnextlevel()
+    {
+        int currentsceneindex = SceneManager.GetActiveScene().buildIndex;
+        int nextlevelindex = currentsceneindex + 1;
+        if (nextlevelindex == SceneManager.sceneCountInBuildSettings)
+        {
+            nextlevelindex = 0;
+        }
+        SceneManager.LoadScene(nextlevelindex);
     }
 }
