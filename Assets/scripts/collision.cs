@@ -4,12 +4,45 @@ using UnityEngine.SceneManagement;
 public class collision : MonoBehaviour
 {
     [SerializeField]float delay = 1.5f;
+    [SerializeField] AudioClip expolsionsound;
+    [SerializeField] AudioClip landedsound;
+
+    [SerializeField] ParticleSystem expolsionparticles;
+    [SerializeField] ParticleSystem landedparticles;
+
+    AudioSource audiosource;
+
+    bool istransitioning= false;
+    bool collisiondisable = false;
+    void Start()
+    {
+         audiosource = GetComponent<AudioSource>();
+    }
+
+    void Update()
+    {
+        processcheat();
+    }
+
+    void processcheat()
+    {
+        if(Input.GetKey(KeyCode.L))
+        {
+            loadnextlevel();
+        }
+        else if(Input.GetKey(KeyCode.C))
+        {
+            collisiondisable = !collisiondisable;
+        }
+    }
+
     void OnCollisionEnter(Collision other) 
     {
+        if(istransitioning || collisiondisable){ return;}
+
         switch(other.gameObject.tag)
         {
             case "friendly":
-                Debug.Log("this is friendly");
                 break;
             case "Finish":
                 landedsequence();
@@ -21,12 +54,22 @@ public class collision : MonoBehaviour
         }
     }
     void landedsequence()
-    {
+    {   
+        istransitioning = true;
+        audiosource.Stop();
+        audiosource.PlayOneShot(landedsound);
+        landedparticles.Play();
+     
         GetComponent<movement>().enabled = false;
         Invoke("loadnextlevel",delay);
     }
     void startcrashedsequence()
     {
+        istransitioning = true;
+        audiosource.Stop();
+        audiosource.PlayOneShot(expolsionsound);   
+        expolsionparticles.Play();
+        
         GetComponent<movement>().enabled = false;
         Invoke("reloadlevel",delay);
     }
